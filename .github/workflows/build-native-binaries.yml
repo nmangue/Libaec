@@ -25,3 +25,9 @@ jobs:
           cd build
           cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=../artifacts ..
           ninja install
+      - name: Archive artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: win-lib
+          path: artifacts/libaec.dll
+          if-no-files-found: error
