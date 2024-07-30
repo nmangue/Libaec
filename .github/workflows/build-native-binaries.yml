@@ -29,17 +29,20 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: win-lib
-          path: artifacts/bin/libaec.dll
+          path: lib/libaec/artifacts/bin/libaec.dll
           if-no-files-found: error
   unix_build:
-    runs-on: ${{ matrix.os }}
+    runs-on: ${{ matrix.configs.os }}
 
     strategy:
       # Set fail-fast to false to ensure that feedback is delivered for all matrix combinations
       fail-fast: false
 
       matrix:
-        os: [ubuntu-latest, macos-latest]
+        configs: [
+          { os: ubuntu-latest, name: linux-lib, target: libaec.so.* },
+          { os: macos-latest, name: mac-lib, target: libaec*.dylib }
+        ]
 
     steps:
       - name: Checkout repository
@@ -53,9 +56,9 @@ jobs:
           cd build
           cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=../artifacts ..
           make install
-      # - name: Archive artifacts
-      #   uses: actions/upload-artifact@v4
-      #   with:
-      #     name: win-lib
-      #     path: artifacts/bin/libaec.dll
-      #     if-no-files-found: error
+      - name: Archive artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.configs.name }}
+          path: lib/libaec/artifacts/lib/${{ matrix.configs.target }}
+          if-no-files-found: error
