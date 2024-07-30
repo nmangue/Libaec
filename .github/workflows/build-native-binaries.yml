@@ -40,8 +40,8 @@ jobs:
 
       matrix:
         configs: [
-          { os: ubuntu-latest, name: linux-lib, target: libaec.so* },
-          { os: macos-latest, name: mac-lib, target: libaec*.dylib }
+          { os: ubuntu-latest, name: linux-lib, target: libaec.so },
+          { os: macos-latest, name: mac-lib, target: libaec.dylib }
         ]
 
     steps:
