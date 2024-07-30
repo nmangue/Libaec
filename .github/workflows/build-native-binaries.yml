@@ -19,8 +19,9 @@ jobs:
             ninja:p
       - name: Build
         shell: msys2 {0}
+        working-directory: lib/libaec 
         run: |
           mkdir build
           cd build
           cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=../artifacts ..
-          make install
+          ninja install
