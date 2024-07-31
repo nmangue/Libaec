@@ -8,13 +8,15 @@ namespace Libaec;
 [Flags]
 public enum AecDataFlags
 {
+    AEC_DATA_NONE = 0,
+
     /// <summary>
     /// Samples are signed. Telling libaec this results in a slightly better compression ratio. Default is unsigned.
     /// </summary>
     AEC_DATA_SIGNED = 1,
 
     /// <summary>
-    /// 24 bit samples are coded in 3 bytes
+    /// 17 to 24 bit samples are coded in 3 bytes
     /// </summary>
     AEC_DATA_3BYTE = 2,
 
