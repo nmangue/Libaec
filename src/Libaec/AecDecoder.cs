@@ -22,13 +22,13 @@ public class AecDecoder
 
     public uint[] Decode(byte[] compressedData, int length, int nbSamples)
     {
-        var nbBytesPerValue = GetDecompressedSampleByteSize(bitsPerSample);
+        var nbBytesPerSample = GetDecompressedSampleByteSize(bitsPerSample);
 
-        var valuesBytes = new byte[nbSamples * nbBytesPerValue];
+        var decompressedData = new byte[nbSamples * nbBytesPerSample];
 
         // Pin the byte array in memory so that the garbage collector doesn't move it
         GCHandle compressedDataHandle = GCHandle.Alloc(compressedData, GCHandleType.Pinned);
-        GCHandle valuesHandle = GCHandle.Alloc(valuesBytes, GCHandleType.Pinned);
+        GCHandle valuesHandle = GCHandle.Alloc(decompressedData, GCHandleType.Pinned);
 
         try
         {
@@ -36,7 +36,7 @@ public class AecDecoder
             IntPtr dataPointer = compressedDataHandle.AddrOfPinnedObject();
             IntPtr valuesPointer = valuesHandle.AddrOfPinnedObject();
 
-            AecStream strm = new AecStream
+            AecStream strm = new()
             {
                 BitsPerSample = (uint)bitsPerSample,
                 BlockSize = (uint)blockSize,
@@ -45,7 +45,7 @@ public class AecDecoder
                 NextIn = dataPointer,
                 AvailIn = (UIntPtr)length,
                 NextOut = valuesPointer,
-                AvailOut = (UIntPtr)valuesBytes.Length
+                AvailOut = (UIntPtr)decompressedData.Length
             };
 
             int result = Interop.aec_decode_init(ref strm);
@@ -65,9 +65,9 @@ public class AecDecoder
         }
 
         uint[] values;
-        using (var ms = new MemoryStream(valuesBytes))
+        using (var ms = new MemoryStream(decompressedData))
         {
-            values = ReadSamples(ms, nbBytesPerValue);
+            values = ReadSamples(ms, nbBytesPerSample);
         }
 
         return values;
