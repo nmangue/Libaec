@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Buffers;
 using System.IO;
 using System.Runtime.InteropServices;
 
@@ -24,7 +24,8 @@ public class AecDecoder
     {
         var nbBytesPerSample = GetDecompressedSampleByteSize(bitsPerSample);
 
-        var decompressedData = new byte[nbSamples * nbBytesPerSample];
+        int decompressedDataLength = nbSamples * nbBytesPerSample;
+        var decompressedData = ArrayPool<byte>.Shared.Rent(decompressedDataLength);
 
         // Pin the byte array in memory so that the garbage collector doesn't move it
         GCHandle compressedDataHandle = GCHandle.Alloc(compressedData, GCHandleType.Pinned);
@@ -45,7 +46,7 @@ public class AecDecoder
                 NextIn = dataPointer,
                 AvailIn = (UIntPtr)length,
                 NextOut = valuesPointer,
-                AvailOut = (UIntPtr)decompressedData.Length
+                AvailOut = (UIntPtr)decompressedDataLength
             };
 
             int aecReturn = Interop.aec_decode_init(ref strm);
@@ -68,10 +69,14 @@ public class AecDecoder
             valuesHandle.Free();
         }
 
-        uint[] values;
-        using (var ms = new MemoryStream(decompressedData))
+        var values = new uint[nbSamples];
+
+        using var ms = new MemoryStream(decompressedData);
+        using var reader = new BinaryReader(ms);
+
+        for (int i = 0; i < values.Length; i++)
         {
-            values = ReadSamples(ms, nbBytesPerSample);
+            values[i] = ReadSample(reader, nbBytesPerSample);
         }
 
         return values;
@@ -117,40 +122,14 @@ public class AecDecoder
         return bytesNeeded;
     }
 
-
-    public static uint[] ReadSamples(Stream input, int bytesPerSample)
-    {
-        var samples = new List<uint>();
-
-        using (var reader = new BinaryReader(input))
-        {
-            while (reader.BaseStream.Position < reader.BaseStream.Length)
-            {
-                samples.Add(ReadSample(reader, bytesPerSample));
-            }
-        }
-
-        return [.. samples];
-    }
-
-    private static int GetBytesPerSample(int dynamicRange) =>
-        dynamicRange <= 8 ? 1 : dynamicRange <= 16 ? 2 : 4;
-
     private static uint ReadSample(BinaryReader reader, int bytesPerSample)
     {
-        byte[] bytes = reader.ReadBytes(bytesPerSample);
-
-        if (!BitConverter.IsLittleEndian)
-        {
-            Array.Reverse(bytes);
-        }
-
         return bytesPerSample switch
         {
-            1 => bytes[0],
-            2 => BitConverter.ToUInt16(bytes, 0),
-            3 => (uint)(bytes[0] | (bytes[1] << 8) | (bytes[2] << 16)),
-            4 => BitConverter.ToUInt32(bytes, 0),
+            1 => reader.ReadByte(),
+            2 => reader.ReadUInt16(),
+            3 => (uint)(reader.ReadByte() | (reader.ReadByte() << 8) | (reader.ReadByte() << 16)),
+            4 => reader.ReadUInt32(),
             _ => throw new ArgumentOutOfRangeException(nameof(bytesPerSample), "Invalid bytes per sample.")
         };
     }
