@@ -22,12 +22,7 @@ public class AecDecoder
 
     public uint[] Decode(byte[] compressedData, int length, int nbSamples)
     {
-        var nbBytesPerValue = CalculatePowerOfTwoBytesForBitSample(bitsPerSample);
-
-        if (nbBytesPerValue == 4 && bitsPerSample <= 24 && flags.HasFlag(AecDataFlags.AEC_DATA_3BYTE))
-        {
-            nbBytesPerValue = 3;
-        }
+        var nbBytesPerValue = GetDecompressedSampleByteSize(bitsPerSample);
 
         var valuesBytes = new byte[nbSamples * nbBytesPerValue];
 
@@ -80,35 +75,27 @@ public class AecDecoder
 
 
     /// <summary>
-    /// Calculates the number of bytes needed to store a given number of bits, 
-    /// rounding up to the nearest power of 2.
+    /// Calculates the number of bytes needed to store a given number of bits.
     /// </summary>
     /// <param name="bitsPerSample">The number of bits to be stored. Must be a positive integer.</param>
     /// <returns>
-    /// The smallest power of 2 number of bytes that can contain the specified number of bits.
+    /// The smallest number of bytes that can contain the specified number of bits.
     /// </returns>
     /// <remarks>
-    /// This method uses bitwise operations for efficiency. It first calculates the minimum
-    /// number of bytes needed to store the bits, then rounds this up to the next power of 2.
-    /// 
-    /// The steps are as follows:
-    /// 1. Calculate the minimum bytes needed: (bitsPerSample + 7) / 8
-    /// 2. Find the next power of 2 using bitwise operations
-    /// 
-    /// This method is optimized for performance and is suitable for scenarios where
-    /// memory allocation needs to be in power-of-2 blocks.
-    /// 
     /// Examples:
     /// - For 1-8 bits, it returns 1 byte
     /// - For 9-16 bits, it returns 2 bytes
-    /// - For 17-32 bits, it returns 4 bytes
+    /// - For 17-32 bits, it returns 4 bytes or 3 bytes if the AEC_DATA_3BYTE flag is set
     /// - For 33-64 bits, it returns 8 bytes
-    /// 
-    /// Note: This method assumes that the input will not cause an integer overflow.
-    /// For very large bit counts (> 2^28), consider using a long integer version.
     /// </remarks>
-    public static int CalculatePowerOfTwoBytesForBitSample(int bitsPerSample)
+    public int GetDecompressedSampleByteSize(int bitsPerSample)
     {
+        // This method uses bitwise operations for efficiency. It first calculates the minimum
+        // number of bytes needed to store the bits, then rounds this up to the next power of 2.
+        // 
+        // The steps are as follows:
+        // 1. Calculate the minimum bytes needed: (bitsPerSample + 7) / 8
+        // 2. Find the next power of 2 using bitwise operations
         int bytesNeeded = (bitsPerSample + 7) >> 3;  // Equivalent to (bitsPerSample + 7) / 8
         bytesNeeded--;
         bytesNeeded |= bytesNeeded >> 1;
@@ -117,6 +104,12 @@ public class AecDecoder
         bytesNeeded |= bytesNeeded >> 8;
         bytesNeeded |= bytesNeeded >> 16;
         bytesNeeded++;
+
+        if (bytesNeeded == 4 && bitsPerSample <= 24 && flags.HasFlag(AecDataFlags.AEC_DATA_3BYTE))
+        {
+            bytesNeeded = 3;
+        }
+
         return bytesNeeded;
     }
 
