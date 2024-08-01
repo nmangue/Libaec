@@ -48,13 +48,17 @@ public class AecDecoder
                 AvailOut = (UIntPtr)decompressedData.Length
             };
 
-            int result = Interop.aec_decode_init(ref strm);
-            if (result != (int)AecReturnCode.AEC_OK)
-                throw new Exception("Init failed");
+            int aecReturn = Interop.aec_decode_init(ref strm);
+            if (aecReturn != (int)AecReturnCode.AEC_OK)
+            {
+                throw new AecException("Decode init failed", aecReturn);
+            }
 
-            int result2 = Interop.aec_decode(ref strm, (int)AecFlushMode.AEC_FLUSH);
-            if (result2 != (int)AecReturnCode.AEC_OK)
-                throw new Exception("Decode failed");
+            aecReturn = Interop.aec_decode(ref strm, (int)AecFlushMode.AEC_FLUSH);
+            if (aecReturn != (int)AecReturnCode.AEC_OK)
+            {
+                throw new AecException("Decode failed", aecReturn);
+            }
 
             Interop.aec_decode_end(ref strm);
         }
