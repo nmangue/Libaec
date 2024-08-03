@@ -1,6 +1,4 @@
 using System.Globalization;
-using System.Runtime.InteropServices;
-using Xunit.Sdk;
 using NFluent;
 
 namespace Libaec.Tests
@@ -11,6 +9,11 @@ namespace Libaec.Tests
         [MemberData(nameof(AllOptionsTestData))]
         public void Decode_AllOptions_Test(string datFile, string rzFile, int nbSamples, int bitsPerSample, int rsi, AecDataFlags flags)
         {
+            CheckDecode(datFile, rzFile, nbSamples, bitsPerSample, rsi, flags);
+        }
+
+        private void CheckDecode(string datFile, string rzFile, int nbSamples, int bitsPerSample, int rsi, AecDataFlags flags)
+        {
             var expectedValues = DataSampleReader.ReadSamples(datFile, bitsPerSample);
 
             var compressedData = File.ReadAllBytes(rzFile);
@@ -20,7 +23,6 @@ namespace Libaec.Tests
             var values = decoder.Decode(compressedData, compressedData.Length, nbSamples);
 
             Check.That(values).ContainsExactly(expectedValues);
-
         }
 
         public static IEnumerable<object[]> AllOptionsTestData
@@ -45,6 +47,44 @@ namespace Libaec.Tests
                     var bitsPerSample = int.Parse(rzFileName.Substring(10, 2), CultureInfo.InvariantCulture);
 
                     var rsi = bitsPerSample > 16 ? 32 : 16;
+
+                    yield return new object[] { datFile, rzFile, nbSamples, bitsPerSample, rsi, flags };
+                }
+            }
+        }
+
+        [Theory]
+        [MemberData(nameof(LowEntropyOptions))]
+        public void Decode_LowEntropyOptions_Test(string datFile, string rzFile, int nbSamples, int bitsPerSample, int rsi, AecDataFlags flags)
+        {
+            CheckDecode(datFile, rzFile, nbSamples, bitsPerSample, rsi, flags);
+        }
+
+        public static IEnumerable<object[]> LowEntropyOptions
+        {
+            get
+            {
+                var encodedFiles = Directory.GetFiles("./TestData/LowEntropyOptions", "*.rz");
+
+                foreach (var rzFile in encodedFiles)
+                {
+                    string rzFileName = Path.GetFileNameWithoutExtension(rzFile);
+                    var datFile = Path.Combine(Path.GetDirectoryName(rzFile)!, rzFileName.Substring(0, 12) + ".dat");
+
+                    var flags = AecDataFlags.AEC_DATA_PREPROCESS;
+
+                    if (rzFileName.Contains("restricted"))
+                    {
+                        flags |= AecDataFlags.AEC_RESTRICTED;
+                    }
+
+                    var i = int.Parse(rzFileName.Substring(6, 1), CultureInfo.InvariantCulture);
+
+                    var nbSamples = i == 1 ? 432 : i == 2 ? 1024 : 2048;
+
+                    var bitsPerSample =int.Parse(rzFileName.Substring(14, 2), CultureInfo.InvariantCulture);
+
+                    var rsi = 64;
 
                     yield return new object[] { datFile, rzFile, nbSamples, bitsPerSample, rsi, flags };
                 }
