@@ -1,0 +1,36 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{76A44594-D070-4257-A90E-20E367791228}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Libaec", "src\Libaec\Libaec.csproj", "{E106C399-94D5-44FD-AB68-AD792D937C99}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{29961627-149A-4786-A2D8-A3867D34A9E1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Libaec.Tests", "tests\Libaec.Tests\Libaec.Tests.csproj", "{5EC8C9EA-1D1B-4AA0-BEBC-BF7F35E06173}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{E106C399-94D5-44FD-AB68-AD792D937C99}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E106C399-94D5-44FD-AB68-AD792D937C99}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E106C399-94D5-44FD-AB68-AD792D937C99}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E106C399-94D5-44FD-AB68-AD792D937C99}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5EC8C9EA-1D1B-4AA0-BEBC-BF7F35E06173}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5EC8C9EA-1D1B-4AA0-BEBC-BF7F35E06173}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5EC8C9EA-1D1B-4AA0-BEBC-BF7F35E06173}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5EC8C9EA-1D1B-4AA0-BEBC-BF7F35E06173}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{E106C399-94D5-44FD-AB68-AD792D937C99} = {76A44594-D070-4257-A90E-20E367791228}
+		{5EC8C9EA-1D1B-4AA0-BEBC-BF7F35E06173} = {29961627-149A-4786-A2D8-A3867D34A9E1}
+	EndGlobalSection
+EndGlobal
