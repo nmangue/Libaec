@@ -12,19 +12,6 @@ public class AecDecoderTests
         CheckDecode(datFile, rzFile, nbSamples, bitsPerSample, rsi, 16, flags);
     }
 
-    private void CheckDecode(string datFile, string rzFile, int nbSamples, int bitsPerSample, int rsi, int blockSize, AecDataFlags flags)
-    {
-        var expectedValues = DataSampleReader.ReadSamples(datFile, bitsPerSample);
-
-        var compressedData = File.ReadAllBytes(rzFile);
-
-        var decoder = new AecDecoder(bitsPerSample, flags, blockSize, rsi);
-
-        var values = decoder.Decode(compressedData, compressedData.Length, nbSamples);
-
-        Check.That(values).ContainsExactly(expectedValues);
-    }
-
     public static IEnumerable<object[]> AllOptionsTestData
     {
         get
@@ -123,53 +110,17 @@ public class AecDecoderTests
             }
         }
     }
-}
 
-
-public static class DataSampleReader
-{
-    public static uint[] ReadSamples(string filePath, int dynamicRange)
+    private static void CheckDecode(string datFile, string rzFile, int nbSamples, int bitsPerSample, int rsi, int blockSize, AecDataFlags flags)
     {
-        int bytesPerSample = GetBytesPerSample(dynamicRange);
-        using var fileStream = new FileStream(filePath, FileMode.Open, FileAccess.Read);
+        var expectedValues = DataSampleReader.ReadSamples(datFile, bitsPerSample);
 
-        return ReadSamples(fileStream, bytesPerSample);
-    }
+        var compressedData = File.ReadAllBytes(rzFile);
 
-    public static uint[] ReadSamples(Stream input, int bytesPerSample)
-    {
-        var samples = new List<uint>();
+        var decoder = new AecDecoder(bitsPerSample, flags, blockSize, rsi);
 
-        using (var reader = new BinaryReader(input))
-        {
-            while (reader.BaseStream.Position < reader.BaseStream.Length)
-            {
-                samples.Add(ReadSample(reader, bytesPerSample));
-            }
-        }
+        var values = decoder.Decode(compressedData, compressedData.Length, nbSamples);
 
-        return [.. samples];
-    }
-
-    private static int GetBytesPerSample(int dynamicRange) =>
-        dynamicRange <= 8 ? 1 : dynamicRange <= 16 ? 2 : 4;
-
-    private static uint ReadSample(BinaryReader reader, int bytesPerSample)
-    {
-        byte[] bytes = reader.ReadBytes(bytesPerSample);
-
-        if (!BitConverter.IsLittleEndian)
-        {
-            Array.Reverse(bytes);
-        }
-
-        return bytesPerSample switch
-        {
-            1 => bytes[0],
-            2 => BitConverter.ToUInt16(bytes, 0),
-            3 => (uint)(bytes[0] | (bytes[1] << 8) | (bytes[2] << 16)),
-            4 => BitConverter.ToUInt32(bytes, 0),
-            _ => throw new ArgumentOutOfRangeException(nameof(bytesPerSample), "Invalid bytes per sample.")
-        };
+        Check.That(values).ContainsExactly(expectedValues);
     }
 }
