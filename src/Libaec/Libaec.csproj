@@ -6,11 +6,23 @@
 		<Nullable>enable</Nullable>
 		<RootNamespace>Libaec</RootNamespace>
 		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-		<Version>0.0.1</Version>
+		<Version>0.1.0</Version>
 		<AssemblyName>$(MSBuildProjectName).Interop</AssemblyName>
 		<PackageId>$(MSBuildProjectName)</PackageId>
 		<IncludeSymbols>True</IncludeSymbols>
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
+	</PropertyGroup>
+
+	<PropertyGroup>
+		<Authors>Nicolas MANGUÉ</Authors>
+		<Description>An interop wrapper for the native libaec (Adaptive Entropy Decoder) C implementation.</Description>
+		<PackageTags>libaec;interop;compression</PackageTags>
+		<PackageLicenseExpression>BSD-2-Clause</PackageLicenseExpression>
+		<PackageProjectUrl>https://github.com/nmangue/Libaec</PackageProjectUrl>
+		<RepositoryUrl>https://github.com/nmangue/Libaec.git</RepositoryUrl>
+		<RepositoryType>git</RepositoryType>
+		<Product>Libaec</Product>
+		<Copyright>Copyright 2024 Mathis Rosenhauer, Moritz Hanke, Joerg Behrens, Luis Kornblueh, Nicolas Mangué</Copyright>
 	</PropertyGroup>
 
 	<ItemGroup>
