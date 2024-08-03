@@ -9,6 +9,8 @@
 		<Version>0.0.1</Version>
 		<AssemblyName>$(MSBuildProjectName).Interop</AssemblyName>
 		<PackageId>$(MSBuildProjectName)</PackageId>
+		<IncludeSymbols>True</IncludeSymbols>
+		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
 	</PropertyGroup>
 
 	<ItemGroup>
