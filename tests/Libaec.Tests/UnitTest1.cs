@@ -9,16 +9,16 @@ namespace Libaec.Tests
         [MemberData(nameof(AllOptionsTestData))]
         public void Decode_AllOptions_Test(string datFile, string rzFile, int nbSamples, int bitsPerSample, int rsi, AecDataFlags flags)
         {
-            CheckDecode(datFile, rzFile, nbSamples, bitsPerSample, rsi, flags);
+            CheckDecode(datFile, rzFile, nbSamples, bitsPerSample, rsi, 16, flags);
         }
 
-        private void CheckDecode(string datFile, string rzFile, int nbSamples, int bitsPerSample, int rsi, AecDataFlags flags)
+        private void CheckDecode(string datFile, string rzFile, int nbSamples, int bitsPerSample, int rsi, int blockSize, AecDataFlags flags)
         {
             var expectedValues = DataSampleReader.ReadSamples(datFile, bitsPerSample);
 
             var compressedData = File.ReadAllBytes(rzFile);
 
-            var decoder = new AecDecoder(bitsPerSample, flags, 16, rsi);
+            var decoder = new AecDecoder(bitsPerSample, flags, blockSize, rsi);
 
             var values = decoder.Decode(compressedData, compressedData.Length, nbSamples);
 
@@ -57,7 +57,7 @@ namespace Libaec.Tests
         [MemberData(nameof(LowEntropyOptions))]
         public void Decode_LowEntropyOptions_Test(string datFile, string rzFile, int nbSamples, int bitsPerSample, int rsi, AecDataFlags flags)
         {
-            CheckDecode(datFile, rzFile, nbSamples, bitsPerSample, rsi, flags);
+            CheckDecode(datFile, rzFile, nbSamples, bitsPerSample, rsi, 16, flags);
         }
 
         public static IEnumerable<object[]> LowEntropyOptions
@@ -87,6 +87,39 @@ namespace Libaec.Tests
                     var rsi = 64;
 
                     yield return new object[] { datFile, rzFile, nbSamples, bitsPerSample, rsi, flags };
+                }
+            }
+        }
+
+        [Theory]
+        [MemberData(nameof(ExtendedParameters))]
+        public void Decode_ExtendedParameters_Test(string datFile, string rzFile, int nbSamples, int bitsPerSample, int rsi, int blockSize, AecDataFlags flags)
+        {
+            CheckDecode(datFile, rzFile, nbSamples, bitsPerSample, rsi, blockSize, flags);
+        }
+
+        public static IEnumerable<object[]> ExtendedParameters
+        {
+            get
+            {
+                var encodedFiles = Directory.GetFiles("./TestData/ExtendedParameters", "*.rz");
+
+                foreach (var rzFile in encodedFiles)
+                {
+                    string rzFileName = Path.GetFileNameWithoutExtension(rzFile);
+                    var datFile = Path.Combine(Path.GetDirectoryName(rzFile)!, rzFileName.Substring(0, 8) + ".dat");
+
+                    var flags = AecDataFlags.AEC_DATA_PREPROCESS | AecDataFlags.AEC_PAD_RSI;
+
+                    var bitsPerSample = int.Parse(rzFileName.Substring(3, 2), CultureInfo.InvariantCulture);
+
+                    var j = int.Parse(rzFileName.Substring(10, 2), CultureInfo.InvariantCulture);
+
+                    var rsi = int.Parse(rzFileName.Substring(14), CultureInfo.InvariantCulture);
+
+                    var nbSamples = 512 * 512;
+
+                    yield return new object[] { datFile, rzFile, nbSamples, bitsPerSample, rsi, j, flags };
                 }
             }
         }
