@@ -1,12 +1,12 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFramework>netstandard2.0</TargetFramework>
+		<TargetFrameworks>netstandard2.0;net8</TargetFrameworks>
 		<LangVersion>latest</LangVersion>
 		<Nullable>enable</Nullable>
 		<RootNamespace>Libaec</RootNamespace>
 		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-		<Version>0.1.0</Version>
+		<Version>0.2.0</Version>
 		<AssemblyName>$(MSBuildProjectName).Interop</AssemblyName>
 		<PackageId>$(MSBuildProjectName)</PackageId>
 		<IncludeSymbols>True</IncludeSymbols>
@@ -23,9 +23,15 @@
 		<RepositoryType>git</RepositoryType>
 		<Product>Libaec</Product>
 		<Copyright>Copyright 2024 Mathis Rosenhauer, Moritz Hanke, Joerg Behrens, Luis Kornblueh, Nicolas Mangué</Copyright>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
+	</PropertyGroup>
+
+	<PropertyGroup>
+		<IsAotCompatible Condition="$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net8.0'))">true</IsAotCompatible>
 	</PropertyGroup>
 
 	<ItemGroup>
+		<None Include="..\..\README.md" Pack="true" PackagePath="\"/>
 		<None Include="..\..\binref\libaec.dll" Link="libaec.dll" Pack="true" PackagePath="runtimes/win-x64/native/">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</None>
