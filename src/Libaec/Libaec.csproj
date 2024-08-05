@@ -23,9 +23,11 @@
 		<RepositoryType>git</RepositoryType>
 		<Product>Libaec</Product>
 		<Copyright>Copyright 2024 Mathis Rosenhauer, Moritz Hanke, Joerg Behrens, Luis Kornblueh, Nicolas Mangué</Copyright>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
 	</PropertyGroup>
 
 	<ItemGroup>
+		<None Include="..\..\README.md" Pack="true" PackagePath="\"/>
 		<None Include="..\..\binref\libaec.dll" Link="libaec.dll" Pack="true" PackagePath="runtimes/win-x64/native/">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</None>
