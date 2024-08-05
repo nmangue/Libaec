@@ -48,6 +48,9 @@ public class AecException : Exception
     /// <param name="context">The <see cref="StreamingContext"/> that contains contextual information about the source or destination.</param>
     /// <exception cref="ArgumentNullException">The <paramref name="info"/> parameter is null.</exception>
     /// <exception cref="SerializationException">The class name is null or <see cref="Exception.HResult"/> is zero (0).</exception>
+#if NET8_0_OR_GREATER
+    [Obsolete(DiagnosticId = "SYSLIB0051")] // add this attribute to the serialization ctor
+#endif
     protected AecException(SerializationInfo info, StreamingContext context)
         : base(info, context) { }
 }
